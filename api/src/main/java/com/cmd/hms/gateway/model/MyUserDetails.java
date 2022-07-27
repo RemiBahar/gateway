@@ -14,6 +14,7 @@ public class MyUserDetails implements UserDetails {
     private String userName;
     private String password;
     private boolean active;
+    private int patientId;
     private List<GrantedAuthority> authorities;
 
     public MyUserDetails(User user) {
@@ -23,6 +24,7 @@ public class MyUserDetails implements UserDetails {
         this.authorities = Arrays.stream(user.getRoles().split(","))
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
+        this.patientId = user.getPatientId();
     }
 
     @Override
@@ -58,5 +60,9 @@ public class MyUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return active;
+    }
+
+    public int getPatientId() {
+        return patientId;
     }
 }

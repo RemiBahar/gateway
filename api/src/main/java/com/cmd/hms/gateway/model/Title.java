@@ -10,6 +10,9 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
+@PreAuthorize("hasRole('ADMIN')")
 @Entity
 @Table(name="title")
 public class Title {
@@ -28,18 +31,22 @@ public class Title {
     private String Title;
 
     // Getters and setters
+    @PreAuthorize("hasRole('ADMIN')")
     public Long getTitleId() {
         return TitleId;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void setTitleId(Long TitleId) {
         this.TitleId = TitleId;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public String getTitle() {
         return Title;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void setTitle(String Title) {
         this.Title = Title;
     }

@@ -3,6 +3,7 @@ package com.cmd.hms.gateway.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -19,7 +20,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -48,12 +49,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         // We don't need CSRF for this example
         httpSecurity.csrf().disable()
-                // dont authenticate this particular request
-                .authorizeRequests().antMatchers("/authenticate").permitAll().
-                // all other requests need to be authenticated
-                anyRequest().authenticated().and().
-                // make sure we use stateless session; session won't be used to
-                // store user's state.
+                // Authentication not required when logging in
+                .authorizeRequests().antMatchers("/authenticate").permitAll()
+                // Any authenticated user can access metadata
+                .antMatchers("/odata/$metadata").authenticated()
+                // USER can access their records
+                .antMatchers(HttpMethod.GET, "/odata/Patients/**").hasRole("USER") 
+                .antMatchers(HttpMethod.GET, "/odata/Patients{\\d+}/**").hasRole("USER") 
+                .antMatchers(HttpMethod.GET, "/odata/Contacts/**").hasRole("USER") 
+                .antMatchers(HttpMethod.GET, "/odata/Contacts{\\d+}/**").hasRole("USER") 
+                .antMatchers(HttpMethod.GET, "/odata/Addresss/**").hasRole("USER") 
+                .antMatchers(HttpMethod.GET, "/odata/Addresss{\\d+}/**").hasRole("USER") 
+                // ADMIN can access anything
+                .antMatchers("/odata/**").hasRole("ADMIN") 
+                // All other requests need to be authenticated
+                .anyRequest().authenticated().and().
+                // Use statless session
                 exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // Add a filter to validate the tokens with every request

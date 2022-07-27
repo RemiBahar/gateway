@@ -20,6 +20,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import com.cmd.hms.gateway.service.SecurityMethods;
 
 import java.util.Date;
 
@@ -132,7 +133,10 @@ public class Patient {
      * @return      PatientId of patient
     */
     public Long getPatientId() {
-        return PatientId;
+        if(SecurityMethods.userViewPatient(PatientId, PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
+          return PatientId;
+        }
+        return 0L;
     }
 
     /** 
@@ -140,59 +144,73 @@ public class Patient {
     * @param PatientId      cannot be null
     */
     public void setPatientId(Long PatientId) {
-        this.PatientId = PatientId;
+      this.PatientId = PatientId;   
     }
 
     /** Called during /Patients GET request
      * @return      FirstName of patient
     */
     public String getFirstName() {
-        return FirstName;
+        
+        if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
+          return FirstName;
+        }
+        return "";
     }
 
     /** 
     * Called when FirstName is in the request body of a PUT, POST, or PATCH request
     * @param FirstName      must be under 1000 characters and cannot be null or blank
     */
-    public void setFirstName(String FirstName) {
-        this.FirstName = FirstName;
+    public void setFirstName(String FirstName) { 
+      this.FirstName = FirstName;
     }
 
     /** Called during /Patients GET request
     * @return      LastName of patient
     */
     public String getLastName() {
+      if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
         return LastName;
+      }
+      return "";
     }
 
     /** 
     * Called when LastName is in the request body of a PUT, POST, or PATCH request
     * @param LastName       must be under 100 characters and cannot be null or blank
     */
-    public void setLastName(String LastName) {
-        this.LastName = LastName;
+    public void setLastName(String LastName) { 
+      this.LastName = LastName;
     }
 
     /** Called during /Patients GET request
      * @return      MiddleName of patient
     */
     public String getMiddleName() {
+      if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
         return MiddleName;
+      }
+
+      return "";
     }
 
     /** 
     * Called when MiddleName is in the request body of a PUT, POST, or PATCH request
     * @param MiddleName       must be under 100 characters
     */
-    public void setMiddleName(String MiddleName) {
-        this.MiddleName = MiddleName;
+    public void setMiddleName(String MiddleName) { 
+      this.MiddleName = MiddleName;
     }
 
     /** Called during /Patients GET request
     * @return      DateOfBirth of patient
     */
     public Date getDateOfBirth() {
-        return DateOfBirth;
+        if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
+          return this.DateOfBirth;
+        }
+        return new Date();
     }
 
      /** 
@@ -200,7 +218,6 @@ public class Patient {
     * @param DateOfBirth       must be a datetime in the past and in the format 'yyyy-mm-ddThh:mm:ss' e.g. 1999-04-01T13:30:00
     */
     public void setDateOfBirth(Date DateOfBirth) {
-        System.out.print("setting dob");
         this.DateOfBirth = DateOfBirth;
     }
 
@@ -217,29 +234,38 @@ public class Patient {
      * @return      PatientStatusId of patient
     */
     public Long getPatientStatusId() {
-        return PatientStatusId;
+      if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
+        return this.PatientStatusId;
+      }
+      return 0L;
       }
     
     /** 
     * Called when PatientStatusId is in the request body of a PUT, POST, or PATCH request
     * @param PatientStatusId       cannot be null and must be a valid foreign key to patient_status
     */
-    public void setPatientStatusId(Long PatientStatusId) {
-        this.PatientStatusId = PatientStatusId;
-      }
+    public void setPatientStatusId(Long PatientStatusId) { 
+      this.PatientStatusId = PatientStatusId;
+    }
 
     /** Called during /Patients GET request
      * @return      Gender of patient
     */
     public Gender getGender() {
-        return Gender;
+      if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
+        return this.Gender;
+      }
+      return new Gender();
       }
 
     /** Called as part of setting GenderId
      * @return      GenderId of patient
     */
     public Long getGenderId() {
-     return GenderId;
+      if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ADMIN")){
+        return GenderId;
+      }
+      return 0L;
     }
 
     /** 
@@ -247,7 +273,7 @@ public class Patient {
     * @param GenderId       must be a valid foreign key to gender
     */
     public void setGenderId(Long GenderId) {
-    this.GenderId = GenderId;
+      this.GenderId = GenderId;
     }
 
     /** Called during /Patients GET request.
@@ -255,23 +281,28 @@ public class Patient {
      * @return      Title of patient
     */
     public Title getTitle() {
-        return Title;
-      }
+        if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ROLE_ADMIN")){
+          return Title;
+        }
+        return new Title();
+    }
     
     /** Called as part of setting TitleId
      * @return      TitleId of patient
     */
     public Long getTitleId() {
+      if(SecurityMethods.userViewPatient(this.PatientId, this.PatientStatusId) || SecurityMethods.hasRole("ROLE_ADMIN")){
         return TitleId;
       }
+        return 0L;
+    }
     
     /** 
     * Called when TitleId is in the request body of a PUT, POST, or PATCH request
     * @param TitleId       must be a valid foreign key to title
     */
     public void setTitleId(Long TitleId) {
-    this.TitleId = TitleId;
-
+      this.TitleId = TitleId;
     }
     
 }

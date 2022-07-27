@@ -16,6 +16,8 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+import com.cmd.hms.gateway.service.SecurityMethods;
+
  /**Used to represent a Contact, stored in the address table and accessible via /Contacts. Linked to a Patient on a many-to-one basis.
 */
 @Entity
@@ -103,7 +105,10 @@ public class Contact {
    * @return Id
    */
   public Long getId() {
-    return Id;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Id;
+    }
+    return 0L;
   }
 
   /** Used to set the Id of a Contact in a POST/PUT/PATCH request
@@ -119,7 +124,10 @@ public class Contact {
    * @return Name
    */
   public String getName() {
-    return Name;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Name;
+    }
+    return "";
   }
 
     /** Used to set the Name of a Contact in a POST/PUT/PATCH request
@@ -135,7 +143,10 @@ public class Contact {
    * @return Telephone
    */
   public String getTelephone() {
-    return Telephone;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Telephone;
+    }
+    return "";
   }
 
   public void setTelephone(String Telephone) {
@@ -147,7 +158,10 @@ public class Contact {
    * @return Mobile
    */
   public String getMobile() {
-    return Mobile;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Mobile;
+    }
+    return "";
   }
 
   /** Used to set the Mobile of a Contact in a POST/PUT/PATCH request
@@ -163,7 +177,10 @@ public class Contact {
    * @return Email
    */
   public String getEmail() {
-    return Email;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Email;
+    }
+    return "";
   }
 
   /** Used to set the Email of a Contact in a POST/PUT/PATCH request
@@ -179,7 +196,10 @@ public class Contact {
    * @return Patient - more information can be shown using /Contacts(1)/PatientDetails
    */
   public Patient getPatient() {
-    return Patient;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Patient;
+    }
+    return new Patient();
   }
 
   /** Used to set the Patient of a Contact
@@ -195,7 +215,10 @@ public class Contact {
    * @return Id
    */
   public Long getPatientId() {
-    return PatientId;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return PatientId;
+    }
+    return 0L;
   }
 
   /** Used to set the PatientId of the Patient a Contact corresponds to in a POST/PUT/PATCH request
@@ -211,7 +234,10 @@ public class Contact {
    * @return Priority
    */
   public Long getPriority() {
-    return Priority;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Priority;
+    }
+    return 0L;
   }
 
   /** Used to set the Priority of a Contact in a POST/PUT/PATCH request
@@ -229,7 +255,10 @@ public class Contact {
    * @return Id
    */
  public ContactType getType() {
+  if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
     return Type;
+  }
+  return new ContactType();
   }
 
   /** Used to get the TypeId of the ContactType of a Contact in a GET request
@@ -237,7 +266,10 @@ public class Contact {
    * @return Id
    */
   public Long getTypeId() {
-    return TypeId;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return TypeId;
+    }
+    return 0L;
   }
 
     /** Used to set the TypeId of the ContactType of the Contact in a POST/PUT/PATCH request

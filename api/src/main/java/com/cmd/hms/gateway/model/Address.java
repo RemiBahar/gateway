@@ -15,6 +15,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import com.cmd.hms.gateway.service.SecurityMethods;
+
 
  /**Used to represent an Address, stored in the address table and accessible via /Addresss. Linked to a Patient on a many-to-one basis.
 */
@@ -120,7 +124,10 @@ public class Address {
    * @return  AddressId
    */
   public Long getAddressId() {
-    return AddressId;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return AddressId;
+    }
+    return 0L;
   }
 
   /** Used when adding a new Address with a POST request
@@ -136,7 +143,10 @@ public class Address {
    * @return StreetNumber - street number of the address, represented by a String since some addresses my have a name
    */
   public String getStreetNumber() {
-    return StreetNumber;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return StreetNumber;
+    }
+    return "";
   }
 
   /** Used to set the StreetNumber in POST/PUT/PATCH requests
@@ -152,7 +162,10 @@ public class Address {
    * @return Street
    */
   public String getStreet() {
-    return Street;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Street;
+    }
+    return "";
   }
 
   /** Used to set the Street in POST/PUT/PATCH requests
@@ -168,7 +181,10 @@ public class Address {
    * @return ZipCode
    */
   public String getZipCode() {
-    return ZipCode;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return ZipCode;
+    }
+    return "";
   }
 
   /** Used to set the ZipCode in POST/PUT/PATCH requests
@@ -184,7 +200,10 @@ public class Address {
    * @return this.City
    */
   public String getCity() {
-    return City;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return City;
+    }
+    return "";
   }
 
   /** Used to set the City in POST/PUT/PATCH requests
@@ -200,7 +219,10 @@ public class Address {
    * @return Priority
    */
   public Long getPriority() {
-    return Priority;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Priority;
+    }
+    return 0L;
   }
 
   /** Used to set the Priority in POST/PUT/PATCH requests
@@ -216,13 +238,17 @@ public class Address {
    * @return Description
    */
   public String getDescription() {
-    return Description;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Description;
+    }
+    return "";
   }
 
   /** Used to set the Description in POST/PUT/PATCH requests
    * 
    * @param Description any extra information about the Address
    */
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public void setDescription(String Description) {
     this.Description = Description;
   }
@@ -232,7 +258,10 @@ public class Address {
    * @return Region
    */
   public String getRegion() {
-    return Region;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Region;
+    }
+    return "";
   }
 
   /** Used to set the Region in POST/PUT/PATCH requests
@@ -250,7 +279,10 @@ public class Address {
    * @return Patient
    */
   public Patient getPatient() { // Only have get object since set object is done using an Id
-    return Patient;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Patient;
+    }
+    return new Patient();
   }
 
   /** Used to get the PatientId of the Patient linked to the Address
@@ -258,7 +290,10 @@ public class Address {
    * @return PatientId
    */
   public Long getPatientId() {
-    return PatientId;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return PatientId;
+    }
+    return 0L;
   }
 
   /** Used to link a Patient to an address by providing a PatientId
@@ -274,7 +309,10 @@ public class Address {
    * @return Type
    */
   public AddressType getType() {
-    return Type;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Type;
+    }
+    return new AddressType();
   }
 
   /** Used to get the TypeId of the Type of the Address
@@ -282,7 +320,10 @@ public class Address {
    * @return TypeId
    */
   public Long getTypeId() {
-    return TypeId;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return TypeId;
+    }
+    return 0L;
   }
 
   /** Used to set the Type of the Address using a TypeId
@@ -298,7 +339,10 @@ public class Address {
    * @return Country
    */
   public Country getCountry() {
-    return Country;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return Country;
+    }
+    return new Country();
   }
 
   /** Used to get the CountryCode of the Country the Address is in
@@ -306,7 +350,10 @@ public class Address {
    * @return CountryCode
    */
   public String getCountryCode() {
-    return CountryCode;
+    if(SecurityMethods.userViewPatient(PatientId, Patient.getPatientStatusId()) || SecurityMethods.hasRole("ADMIN")){
+      return CountryCode;
+    }
+    return "";
   }
 
   /** Used to set the Country the Address is in 

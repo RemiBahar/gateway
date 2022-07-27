@@ -12,6 +12,8 @@ public class User {
     private String password;
     private boolean active;
     private String roles;
+    @Column(name="patient_id")
+    private int patientId;
 
     public int getId() {
         return id;
@@ -53,5 +55,13 @@ public class User {
 
     public void setRoles(String roles) {
         this.roles = roles;
+    }
+
+    public int getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(int patientId) {
+        this.patientId = patientId;
     }
 }
