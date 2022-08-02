@@ -1,6 +1,18 @@
 package com.cmd.hms.gateway.model;
 
-import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -11,9 +23,13 @@ public class User {
     private String userName;
     private String password;
     private boolean active;
-    private String roles;
-    @Column(name="patient_id")
-    private int patientId;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+    name = "user_role", 
+    joinColumns = @JoinColumn(name = "user_id"), 
+    inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> Roles;
 
     public int getId() {
         return id;
@@ -49,19 +65,8 @@ public class User {
         this.active = active;
     }
 
-    public String getRoles() {
-        return roles;
+    public List<Role> getRoles() {
+        return Roles;
     }
 
-    public void setRoles(String roles) {
-        this.roles = roles;
-    }
-
-    public int getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(int patientId) {
-        this.patientId = patientId;
-    }
 }

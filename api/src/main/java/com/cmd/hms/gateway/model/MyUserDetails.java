@@ -4,27 +4,37 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class MyUserDetails implements UserDetails {
-
+    private User user;
     private String userName;
     private String password;
     private boolean active;
-    private int patientId;
     private List<GrantedAuthority> authorities;
 
+    private List<GrantedAuthority> getGrantedAuthorities(List<Role> roles) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getTitle()));
+        }
+        return authorities;
+    }
+
+  
+
+    
+
     public MyUserDetails(User user) {
+        this.user = user;
         this.userName = user.getUserName();
         this.password = user.getPassword();
         this.active = user.isActive();
-        this.authorities = Arrays.stream(user.getRoles().split(","))
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-        this.patientId = user.getPatientId();
+        this.authorities = getGrantedAuthorities(user.getRoles());
     }
 
     @Override
@@ -62,7 +72,7 @@ public class MyUserDetails implements UserDetails {
         return active;
     }
 
-    public int getPatientId() {
-        return patientId;
+    public User getUser() {
+        return user;
     }
 }
