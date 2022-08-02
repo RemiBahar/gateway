@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -24,6 +25,9 @@ public class User {
     private String password;
     private boolean active;
 
+    @Column(name="patient_id")
+    private Long PatientId;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
     name = "user_role", 
@@ -39,6 +43,14 @@ public class User {
         this.id = id;
     }
 
+    public Long getPatientId() {
+        return PatientId;
+    }
+
+    public void setPatientId(Long PatientId) {
+        this.PatientId = PatientId;
+    }
+
     public String getUserName() {
         return userName;
     }
@@ -48,12 +60,10 @@ public class User {
     }
 
     public String getPassword() {
-        System.out.print(password + "get");
         return password;
     }
 
     public void setPassword(String password) {
-        System.out.print(password + "set");
         this.password = password;
     }
 

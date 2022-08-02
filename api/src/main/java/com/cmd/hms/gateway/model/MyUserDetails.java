@@ -14,6 +14,7 @@ public class MyUserDetails implements UserDetails {
     private User user;
     private String userName;
     private String password;
+    private Long PatientId;
     private boolean active;
     private List<GrantedAuthority> authorities;
 
@@ -35,6 +36,7 @@ public class MyUserDetails implements UserDetails {
         this.password = user.getPassword();
         this.active = user.isActive();
         this.authorities = getGrantedAuthorities(user.getRoles());
+        this.PatientId = user.getPatientId();
     }
 
     @Override

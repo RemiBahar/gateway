@@ -22,14 +22,14 @@ public class Privilege {
     @Column(name = "privilege_id", updatable = false, nullable = false)
     private Long PrivilegeId;
 
-    @ManyToOne(cascade = {CascadeType.MERGE}, fetch=FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.MERGE}, fetch=FetchType.EAGER)
     @JoinColumn(name="role_id",insertable = false, updatable = false)
     private Role Role;
     
     @Column(name="role_id")
     private Long RoleId;
 
-    @ManyToOne(cascade = {CascadeType.MERGE}, fetch=FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.MERGE}, fetch=FetchType.EAGER)
     @JoinColumn(name="class_id",insertable = false, updatable = false)
     private Class Class;
     
@@ -117,5 +117,13 @@ public class Privilege {
         this.Condition = Condition;   
     }
 
+    public Class getPrivilegeClass(){
+        return Class;
+    }
 
+    // Custom methods
+
+    public Boolean allowedMethod(String method){
+        return (method.equals("GET") && AccessLevel == 1) || ((method.equals("POST") || method.equals("PT")) && AccessLevel == 1) || AccessLevel == 3;
+    }
 }
