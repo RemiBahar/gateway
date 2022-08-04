@@ -24,6 +24,7 @@ public class HelloWorldController {
 
   
     public Boolean checkCondition(String request){
+        System.out.println(request);
         return true;
     }
 
@@ -142,13 +143,19 @@ public class HelloWorldController {
     public String firstPage(HttpServletRequest httpServletRequest) {
         String serviceUrl = "http://130.211.227.209:8090/odata/";
 
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
         MyUserDetails principal = (MyUserDetails) authentication.getPrincipal();
 
-        String forwardRequest = allowedRequest(httpServletRequest, principal.getUser());
+        AuthoriseRequest AuthoriseRequest = new AuthoriseRequest(httpServletRequest, principal.getUser(), serviceUrl);
+        String response = AuthoriseRequest.forwardRequest();
 
-        System.out.println(forwardRequest);
         
-        return "Hello World";
+
+        //String forwardRequest = allowedRequest(httpServletRequest, principal.getUser());
+
+        
+        return response;
     }
 }
