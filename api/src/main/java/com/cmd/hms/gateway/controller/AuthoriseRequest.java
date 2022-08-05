@@ -81,13 +81,13 @@ public class AuthoriseRequest {
         if(this.originalRequest.getQueryString() == null){
             String returnValue = "";
             if(addFilter){
-                returnValue += "?$filter=" + this.condition;
+                returnValue += "$filter=" + this.condition;
 
                 if(addSelect){
                     returnValue += "&$select=" + this.fields;
                 }
             } else if(addSelect){
-                returnValue += "?$select=" + this.fields;
+                returnValue += "$select=" + this.fields;
             } 
             return returnValue;
         } else {
@@ -101,16 +101,21 @@ public class AuthoriseRequest {
                 
 
             if(addFilter){
-                System.out.println("find: " + this.filter);
-                System.out.println("replace: " + this.filter + this.condition);
-                System.out.println("in: " + this.originalRequest.getQueryString());
+                if(this.filter.equals("$filter=")){
+                    result += this.filter + this.condition;
 
-                result = result.replace(this.filter, this.filter + "&" + this.condition);
-                System.out.println("result: " + result);
+                } else {
+                    result = result.replace(this.filter, this.filter + " and " + this.condition);
+                }
             }
 
             if(addSelect){
-                result = result.replace(this.select, this.select + ","  + this.condition);    
+                if(this.filter.equals("$seelct=")){
+                    result += this.select + this.condition;
+
+                } else {
+                    result = result.replace(this.select, this.select + ","  + this.condition);    
+                }
             }
 
            
@@ -132,6 +137,7 @@ public class AuthoriseRequest {
         // Make GET request
         String checkUrl = this.serviceUrl + this.resource + "?$filter=" + replacePlaceholders(condition);
        
+       
         WebClient client = WebClient.builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) 
             .build();
@@ -145,7 +151,7 @@ public class AuthoriseRequest {
         
         return responseBody.contains("<entry>");
     }
-
+   
     public Boolean checkWriteRequest(){
         if(this.allowedWriteFields.isEmpty()){
            return false; 
@@ -175,6 +181,7 @@ public class AuthoriseRequest {
                 restTemplate.setRequestFactory(requestFactory);
 
                 if(requestType.equals("GET")){
+                    System.out.println("forwardUrl: " + forwardUrl);
                     WebClient.ResponseSpec responseSpec = client.get()
                     .uri(forwardUrl)
                     .retrieve();
@@ -184,7 +191,7 @@ public class AuthoriseRequest {
                 } else if(requestType.equals("PATCH")){
                     // Prepare request 
                     String requestBody = IOUtils.toString(this.originalRequest.getReader());
-
+                   
                     // Patch request
                     HttpEntity<String> request = new HttpEntity<String>(requestBody, headers);
                     String patchResponse = restTemplate.patchForObject(forwardUrl, request, String.class);
@@ -232,12 +239,12 @@ public class AuthoriseRequest {
         if(queryString != null){
             if(queryString.contains(queryVariable))
             {
-                String between = StringUtils.substringBetween(this.originalRequest.getQueryString().toString(), queryVariable, "&$");
+                String between = StringUtils.substringBetween(this.queryString, queryVariable, "&$");
 
                 if(between != null){
                     returnValue = between;
                 } else {
-                    String after = StringUtils.substringAfter(this.originalRequest.getQueryString().toString(), queryVariable);
+                    String after = StringUtils.substringAfter(this.queryString, queryVariable);
 
                     if(after != null){
                         returnValue = after;
