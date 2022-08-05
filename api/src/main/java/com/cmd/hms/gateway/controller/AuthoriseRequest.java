@@ -1,18 +1,16 @@
 package com.cmd.hms.gateway.controller;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Collections;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
-import org.json.XML;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,13 +18,11 @@ import com.cmd.hms.gateway.model.Privilege;
 import com.cmd.hms.gateway.model.Role;
 import com.cmd.hms.gateway.model.User;
 
-import reactor.netty.http.client.HttpClient;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -42,6 +38,8 @@ public class AuthoriseRequest {
     private String select;
     private String condition;
     private String fields;
+    private String queryString;
+
  
 
     // Constructors
@@ -94,23 +92,29 @@ public class AuthoriseRequest {
             return returnValue;
         } else {
         
-            Map<String, String> map= new HashMap();
+           
+            // http://130.211.227.209:8090/odata/Patients(1)/AddressDetails?$filter=AddressId%20eq%202PatientId eq 1 & (PatientStatusId eq 1 or PatientStatusId eq 2)&$select=City
+
+           String result = "";
+        
+            result = this.queryString; // Encoding url twice causes bug
+                
 
             if(addFilter){
                 System.out.println("find: " + this.filter);
                 System.out.println("replace: " + this.filter + this.condition);
                 System.out.println("in: " + this.originalRequest.getQueryString());
-                map.put(this.filter, this.filter + this.condition);    
+
+                result = result.replace(this.filter, this.filter + "&" + this.condition);
+                System.out.println("result: " + result);
             }
 
             if(addSelect){
-                map.put(this.select, this.select + this.fields);    
+                result = result.replace(this.select, this.select + ","  + this.condition);    
             }
 
-            String result = map.keySet()
-                    .stream()
-                    .reduce(this.originalRequest.getQueryString(), (s, e) -> s.replaceAll(e+"\\b", map.get(e)));
-            System.out.println("result: " + result);
+           
+            
             return result;
         }
             
@@ -143,7 +147,6 @@ public class AuthoriseRequest {
     }
 
     public Boolean checkWriteRequest(){
-
         if(this.allowedWriteFields.isEmpty()){
            return false; 
         } else {
@@ -158,31 +161,71 @@ public class AuthoriseRequest {
 
         if(forwardUrl != ""){
             try{ 
+                System.out.println(this.originalRequest.getMethod());
                 WebClient client = WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) 
                 .build();
-                
-                WebClient.ResponseSpec responseSpec = client.get()
-                .uri(forwardUrl)
-                .retrieve();
+                String requestType = this.originalRequest.getMethod().toString();
 
-                // Check if request contains entity
-                String responseBody = responseSpec.bodyToMono(String.class).block();
+                // Prepare request
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                RestTemplate restTemplate = new RestTemplate();
+                HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+                restTemplate.setRequestFactory(requestFactory);
 
-                return responseBody;
+                if(requestType.equals("GET")){
+                    WebClient.ResponseSpec responseSpec = client.get()
+                    .uri(forwardUrl)
+                    .retrieve();
+
+                    String responseBody = responseSpec.bodyToMono(String.class).block();
+                    return responseBody;
+                } else if(requestType.equals("PATCH")){
+                    // Prepare request 
+                    String requestBody = IOUtils.toString(this.originalRequest.getReader());
+
+                    // Patch request
+                    HttpEntity<String> request = new HttpEntity<String>(requestBody, headers);
+                    String patchResponse = restTemplate.patchForObject(forwardUrl, request, String.class);
+
+                    return patchResponse;
+                } else if(requestType.equals("POST")){
+                    // Prepare request 
+                    String requestBody = IOUtils.toString(this.originalRequest.getReader());
+
+                    // Post request
+                    HttpEntity<String> request = new HttpEntity<String>(requestBody, headers);
+                    String postResponse = restTemplate.postForObject(forwardUrl, request, String.class);
+
+                    return postResponse;
+                } else if(requestType.equals("DELETE")){
+                    // Delete request
+                    restTemplate.delete(forwardUrl, String.class);
+                    return "Deleted";
+                }
+                else {
+                    System.out.println("Invalid request type");
+                    return "Not authorised";
+                }
+               
+
+              
 
             } catch(Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println("URL failed: " + forwardUrl);
                 return "Not Authorised";
             }
 
         } 
         else {
             return "Not Authorised";
-        }
+        } //http://130.211.227.209:8090/odata/Patients(1)/AddressDetails?$filter=AddressId%2520eq%25202&PatientId%20eq%201%20&%20(PatientStatusId%20eq%201%20or%20PatientStatusId%20eq%202)&$select=City
         
     }
 
-    public String getSystemQuery(String queryString, String queryVariable){
+    public String getSystemQuery(String queryVariable){
         queryVariable += "=";
         String returnValue = "";
 
@@ -213,12 +256,8 @@ public class AuthoriseRequest {
 
     public String allowedRequest(){
         // Get requested resource name
-
-        String[] test = this.originalRequest.getRequestURI().split("/");
-
-        System.out.println(this.originalRequest.getContextPath());
         String[] array = this.originalRequest.getRequestURI().split("/");
-        System.out.println("length: " + array.length);
+        
         Integer routeIndex = 3;
         String route = array[routeIndex];
 
@@ -232,7 +271,6 @@ public class AuthoriseRequest {
         String remainingUrl = "";
 
         for (int i = routeIndex; i < array.length; i++) {
-            //System.out.println(array[i] + " " + i + " " + routeIndex);
             if(i > (routeIndex)){
                 resourceUrl += "/";
             }  
@@ -244,17 +282,24 @@ public class AuthoriseRequest {
         }
 
         this.unmodifiedRequest = this.serviceUrl + resourceUrl;
-       
-        System.out.println(StringUtils.substringBetween(this.originalRequest.getRequestURI(), this.resource + "(", ")"));
-        System.out.println(this.originalRequest.getQueryString());
 
+        System.out.println("Query String: " + this.originalRequest.getQueryString());
+        System.out.println(this.originalRequest.getQueryString() != null);
+        if (this.originalRequest.getQueryString() != null){
+            System.out.println("Query string not null");
+            try {
+            
+                this.queryString = URLDecoder.decode(this.originalRequest.getQueryString(), StandardCharsets.UTF_8.toString());
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                this.queryString = null;
+            }
+        } else {
+            this.queryString = null;
+        }
 
-        
-
-        //System.out.println(StringUtils.substringBetween(this.originalRequest.getQueryString().toString(), "$filter=", "&$"));
-        String queryString = this.originalRequest.getQueryString();
-        this.select = "$select=" + getSystemQuery(queryString, "$select");
-        this.filter = "$filter=" + getSystemQuery(queryString, "$filter");
+        this.select = "$select=" + getSystemQuery("$select");
+        this.filter = "$filter=" + getSystemQuery("$filter");
         this.fields = "";
         
 
@@ -265,7 +310,9 @@ public class AuthoriseRequest {
         for(Role role : roles){
             // Admin can perform any action
             if(role.getTitle().toLowerCase().contains("admin")){
-                return this.originalRequest.getRequestURI();
+                System.out.println("Is Admin");
+                System.out.println(role.getTitle());
+                return this.serviceUrl + route + remainingUrl;
             }
 
             List<Privilege> privileges = role.getPrivileges();
@@ -274,13 +321,10 @@ public class AuthoriseRequest {
             for(Privilege privilege : privileges){
                 // If privilege is for requested resource
                 if(this.resource.equals(privilege.getPrivilegeClass().getName() + "s")){ 
-                    System.out.println("Privilege");
-
                     // If privilege allows for requested method
                     if(privilege.allowedMethod(this.originalRequest.getMethod())) {
                         String condition = privilege.getCondition();
 
-                        System.out.println(replacePlaceholders(condition));
                         // Authorising read requests
                         if(this.originalRequest.getMethod().contains("GET")){
                             // No condition needed
@@ -288,10 +332,7 @@ public class AuthoriseRequest {
                                 // Applies to all fields
                                 if(privilege.getAllFields()){
                                     this.condition = replacePlaceholders(condition);
-                                    System.out.println(this.serviceUrl + route + remainingUrl + "?" + setQueryString(true, false));
-                                  
-
-                                    return this.serviceUrl + route + remainingUrl + "?$filter=" + replacePlaceholders(condition);
+                                    return this.serviceUrl + route + remainingUrl + "?" + setQueryString(true, false);
                                 } else {
                                     select += privilege.getField().getName() + ",";
                                 }
@@ -330,7 +371,7 @@ public class AuthoriseRequest {
         if(this.originalRequest.getMethod().contains("GET")){
            
             if(select != "$select="){
-                return this.serviceUrl + this.resource + select + remainingUrl;
+                return this.serviceUrl + route + remainingUrl + "?" + setQueryString(true, true);
             } else {
                 return "";
             }
@@ -338,10 +379,8 @@ public class AuthoriseRequest {
         }
         else {
            if(checkWriteRequest()){
-            System.out.println("dont");
-           
-            //return this.unmodifiedRequest;
-            return "";
+            
+            return this.unmodifiedRequest;
            } 
            else {
            
