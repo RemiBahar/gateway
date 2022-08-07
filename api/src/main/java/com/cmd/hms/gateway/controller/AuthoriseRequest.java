@@ -313,6 +313,8 @@ public class AuthoriseRequest {
         // Check privileges
         List<Role> roles = user.getRoles();
 
+        System.out.println("Roles: " + roles);
+
         // Iterate over roles
         for(Role role : roles){
             // Admin can perform any action
@@ -323,15 +325,21 @@ public class AuthoriseRequest {
             }
 
             List<Privilege> privileges = role.getPrivileges();
+            System.out.println("Privileges: " + privileges);
 
             // Iterate over privileges
             for(Privilege privilege : privileges){
                 // If privilege is for requested resource
+
+                System.out.println("resourceEquals: " + privilege.getPrivilegeClass().getName() + "s");
+
                 if(this.resource.equals(privilege.getPrivilegeClass().getName() + "s")){ 
                     // If privilege allows for requested method
+                    System.out.println("allowedMethod: " + privilege.allowedMethod(this.originalRequest.getMethod()));
                     if(privilege.allowedMethod(this.originalRequest.getMethod())) {
                         String condition = privilege.getCondition();
 
+                        System.out.println("checkCondition" + checkCondition(condition));
                         // Authorising read requests
                         if(this.originalRequest.getMethod().contains("GET")){
                             // No condition needed
@@ -341,7 +349,8 @@ public class AuthoriseRequest {
                                     this.condition = replacePlaceholders(condition);
                                     return this.serviceUrl + route + remainingUrl + "?" + setQueryString(true, false);
                                 } else {
-                                    select += privilege.getField().getName() + ",";
+                                    System.out.println("Adding select field");
+                                    this.select += privilege.getField().getName() + ",";
                                 }
                             }
                             
@@ -376,8 +385,10 @@ public class AuthoriseRequest {
 
         
         if(this.originalRequest.getMethod().contains("GET")){
+
+            System.out.println("select: " + this.select);
            
-            if(select != "$select="){
+            if(this.select != "$select="){
                 return this.serviceUrl + route + remainingUrl + "?" + setQueryString(true, true);
             } else {
                 return "";

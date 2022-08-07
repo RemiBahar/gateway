@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -18,8 +19,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public class Privilege {
     // Fields
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Use Id sequencing unique for this table
-    @Column(name = "privilege_id", updatable = false, nullable = false)
+    // @GeneratedValue(strategy = GenerationType.AUTO) // Use Id sequencing unique for this table
+    @Column(name = "privilege_id", columnDefinition = "integer default nextval('privilege_seq'::regclass)")
+    // Create sequence for id values
+    @SequenceGenerator(name = "privilege_seq", sequenceName = "privilege_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "privilege_seq")
     private Long PrivilegeId;
 
     @ManyToOne(cascade = {CascadeType.MERGE}, fetch=FetchType.EAGER)

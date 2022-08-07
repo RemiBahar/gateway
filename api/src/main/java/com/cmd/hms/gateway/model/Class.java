@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -21,8 +22,10 @@ import javax.validation.constraints.Size;
 public class Class {
     // Fields
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Use Id sequencing unique for this table
-    @Column(name = "class_id", updatable = false, nullable = false)
+    @Column(name = "class_id", columnDefinition = "integer default nextval('class_seq'::regclass)")
+    // Create sequence for id values
+    @SequenceGenerator(name = "class_seq", sequenceName = "class_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "class_seq")
     private Long ClassId;
 
     @Column(name="name", nullable = false, length = 100)

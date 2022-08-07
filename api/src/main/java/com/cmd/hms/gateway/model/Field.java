@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -18,8 +19,10 @@ import javax.validation.constraints.Size;
 public class Field {
     // Fields
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Use Id sequencing unique for this table
-    @Column(name = "field_id", updatable = false, nullable = false)
+    @Column(name = "field_id", columnDefinition = "integer default nextval('field_seq'::regclass)")
+    // Create sequence for id values
+    @SequenceGenerator(name = "field_seq", sequenceName = "field_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "field_seq")
     private Long FieldId;
 
     @Column(name="class_id")
