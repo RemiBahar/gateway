@@ -43,7 +43,7 @@ public class Privilege {
     @Column(name="all_fields")
     private Boolean AllFields;
 
-    @ManyToOne(cascade = {CascadeType.MERGE}, fetch=FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.MERGE}, fetch=FetchType.EAGER)
     @JoinColumn(name="field_id",insertable = false, updatable = false)
     private Field Field;
     
@@ -128,6 +128,8 @@ public class Privilege {
     // Custom methods
 
     public Boolean allowedMethod(String method){
-        return (method.equals("GET") && AccessLevel == 1) || ((method.equals("POST") || method.equals("PT")) && AccessLevel == 1) || AccessLevel == 3;
+        return (method.equals("GET") && AccessLevel >= 1) // Read access
+            || ((method.equals("POST") || method.equals("PUT") || method.equals("PATCH")) && AccessLevel >= 2) // Write access
+            || (method.equals("DELETE") && AccessLevel >= 3); // Delete access
     }
 }

@@ -15,6 +15,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -28,17 +30,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
     private int id;
 
-    @Column(name="user_name", unique = true)
+    @Column(name="user_name", unique = true, length = 100)
+    @NotBlank(message = "UserName is mandatory")
+    @Size(max = 100)
     private String userName;
 
     @Column(name="password")
+    @NotBlank(message = "Password is mandatory")
     private String password;
 
     @Column(name="active", columnDefinition = "boolean default true")
-    private boolean active;
+    private boolean active = true;
 
     @Column(name="patient_id")
-    private Long PatientId;
+    private Long PatientId = null;
 
     // Join to role
 

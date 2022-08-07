@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +19,9 @@ import com.cmd.hms.gateway.model.MyUserDetails;
 import com.cmd.hms.gateway.model.Privilege;
 import com.cmd.hms.gateway.model.Role;
 import com.cmd.hms.gateway.model.User;
+
 @RestController
+@Transactional
 public class HelloWorldController {
     String api = "api";
 

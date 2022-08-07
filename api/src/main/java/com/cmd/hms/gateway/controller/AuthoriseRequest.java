@@ -81,13 +81,23 @@ public class AuthoriseRequest {
         if(this.originalRequest.getQueryString() == null){
             String returnValue = "";
             if(addFilter){
-                returnValue += "$filter=" + this.condition;
+                System.out.println("Add filter");
+                returnValue += this.filter;
 
                 if(addSelect){
-                    returnValue += "&$select=" + this.fields;
+                    if (this.select.endsWith(",")) {
+                        this.select =  this.select.substring(0,this.select.length()-1);
+                    }
+
+                    returnValue += "&" + this.select;
                 }
             } else if(addSelect){
-                returnValue += "$select=" + this.fields;
+                System.out.println("Add select");
+                if (this.select.endsWith(",")) {
+                    this.select =  this.select.substring(0,this.select.length()-1);
+                }
+
+                returnValue +=  this.select;
             } 
             return returnValue;
         } else {
@@ -109,11 +119,19 @@ public class AuthoriseRequest {
                 }
             }
 
+            System.out.println("addSelect: " + addSelect);
+     
             if(addSelect){
-                if(this.filter.equals("$seelct=")){
+                if(this.select.equals("$select=")){
                     result += this.select + this.condition;
 
                 } else {
+                    System.out.println("Add select fields");
+                    // Remove trailing ,
+                    if (this.select.endsWith(",")) {
+                        this.select =  this.select.substring(0,this.select.length()-1);
+                    }
+
                     result = result.replace(this.select, this.select + ","  + this.condition);    
                 }
             }
@@ -349,7 +367,7 @@ public class AuthoriseRequest {
                                     this.condition = replacePlaceholders(condition);
                                     return this.serviceUrl + route + remainingUrl + "?" + setQueryString(true, false);
                                 } else {
-                                    System.out.println("Adding select field");
+                                    this.filter += replacePlaceholders(condition) + " & ";
                                     this.select += privilege.getField().getName() + ",";
                                 }
                             }
@@ -385,15 +403,12 @@ public class AuthoriseRequest {
 
         
         if(this.originalRequest.getMethod().contains("GET")){
+            Boolean addSelect = !this.select.equals("$select=");
+            Boolean addFilter = !this.filter.equals("$filter=");
 
-            System.out.println("select: " + this.select);
-           
-            if(this.select != "$select="){
-                return this.serviceUrl + route + remainingUrl + "?" + setQueryString(true, true);
-            } else {
-                return "";
-            }
-           
+            System.out.println(addSelect + " " + addFilter);
+
+            return this.serviceUrl + route + remainingUrl + "?" + setQueryString(addFilter, addSelect);
         }
         else {
            if(checkWriteRequest()){
@@ -403,7 +418,7 @@ public class AuthoriseRequest {
            else {
            
             return "";
-           }
+           } 
 
         }
 

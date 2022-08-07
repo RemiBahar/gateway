@@ -13,6 +13,9 @@ VALUES (1, NULL, 1, '(PatientId eq %PatientId) and (PatientStatusId eq 1 or Pati
 INSERT INTO users (patient_id, active, password, user_name)
 VALUES (NULL, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'admin');
 
+INSERT INTO users (patient_id, active, password, user_name)
+VALUES (1, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'user');
+
 /* Assign users to roles */
 INSERT INTO user_role (role_id, user_id)
 VALUES (1, 1);
