@@ -1,22 +1,14 @@
 package com.cmd.hms.gateway.model;
 
-import java.util.List;
-
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 //@Table(name="roles")
@@ -38,9 +30,6 @@ public class Role {
     @NotBlank(message="Role title required")
     @Size(max=100)
     private String Title;
-    
-    @OneToMany(mappedBy = "Role", fetch=FetchType.EAGER) 
-    private List<Privilege> Privileges;
 
     // Getters and setters
     public Long getRoleId() {
@@ -58,8 +47,4 @@ public class Role {
     public void setTitle(String Title) {
         this.Title = Title;
     }
-    
-    public List<Privilege> getPrivileges() {
-        return Privileges;
-    } 
 }

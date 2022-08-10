@@ -7,6 +7,9 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.cmd.hms.gateway.model.MyUserDetails;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -39,7 +42,11 @@ public class JwtTokenUtil implements Serializable {
     }
     //generate token for user
     public String generateToken(UserDetails userDetails) {
+        MyUserDetails myUserDetails = (MyUserDetails) userDetails;
         Map<String, Object> claims = new HashMap<>();
+        claims.put("Authorities", userDetails.getAuthorities());
+        claims.put("PatientId", myUserDetails.getPatientId());
+        //System.out.println(userDetails.getAuthorities());
         return doGenerateToken(claims, userDetails.getUsername());
     }
     //while creating the token -
