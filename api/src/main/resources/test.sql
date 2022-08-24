@@ -1,14 +1,32 @@
-/* Testing for fields */
-INSERT INTO roles (title) VALUES ('ROLE_USER'); 
+/* Add roles */
+INSERT INTO roles (title) VALUES ('ROLE_ADMIN');
+INSERT INTO roles (title) VALUES ('ROLE_USER');
+INSERT INTO roles (title) VALUES ('ROLE_ASSISTANCE');
+INSERT INTO roles (title) VALUES ('ROLE_TEST');
+INSERT INTO roles (title) VALUES ('ROLE_DELETE');
+
+/* Add users  -> only for testing remove on production */
+INSERT INTO users (patient_id, active, password, user_name)
+VALUES (NULL, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'admin');
 
 INSERT INTO users (patient_id, active, password, user_name)
-VALUES (1, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'field');
+VALUES (1, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'user');
+
+INSERT INTO users (patient_id, active, password, user_name)
+VALUES (1, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'assistance');
+
+INSERT INTO users (patient_id, active, password, user_name)
+VALUES (1, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'spare');
+
+INSERT INTO users (patient_id, active, password, user_name)
+VALUES (1, true, '$2a$12$AnJJhf5PICQ25vSzOo4AKe0mQcKbI3z8hDg24jSrvRTgfiiORfqRK', 'delete');
+
+/* Assign users to roles */
+INSERT INTO user_role (role_id, user_id)
+VALUES (1, 1);
+
+INSERT INTO user_role (role_id, user_id)
+VALUES (2, 2);
 
 INSERT INTO user_role (role_id, user_id)
 VALUES (3, 3);
-
-INSERT INTO field (class_id, name)
-VALUES (1, 'FirstName'), (1, 'FamilyName');
-
-INSERT INTO privilege (access_level, all_fields, class_id, condition, field_id, role_id) 
-VALUES (2, FALSE, 1, '(PatientId eq %PatientId)', 1, 3), (2, FALSE, 1, '(PatientId eq %PatientId)', 2, 3);

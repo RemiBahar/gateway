@@ -1,7 +1,6 @@
 package com.cmd.hms.gateway.model;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Table;
@@ -23,11 +21,8 @@ import javax.validation.constraints.Size;
 public class User {
     // Fields
     @Id
-    // Use sequence for id values
-    @Column(name = "user_id", columnDefinition = "integer default nextval('user_seq'::regclass)")
-    // Create sequence for id values
-    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name="user_name", unique = true, length = 100)

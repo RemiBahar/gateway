@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -20,10 +19,12 @@ public class Role {
     // Fields
     @Id
     // Use sequence for id values
-    @Column(name = "role_id", columnDefinition = "integer default nextval('role_id_seq'::regclass)")
+    //@Column(name = "role_id", columnDefinition = "integer default nextval('role_id_seq'::regclass)")
     // Create sequence for id values
-    @SequenceGenerator(name = "role_id_seq", sequenceName = "role_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_id_seq")
+    //@SequenceGenerator(name = "role_id_seq", sequenceName = "role_id_seq", allocationSize = 1)
+    //@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_id_seq")
+    @Column(name = "role_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long RoleId;
 
     @Column(name="title", nullable = false, length = 100)

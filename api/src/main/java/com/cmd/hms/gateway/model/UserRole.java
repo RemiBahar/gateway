@@ -21,10 +21,12 @@ public class UserRole {
     // Fields
     @Id
     // @GeneratedValue(strategy = GenerationType.AUTO) // Use Id sequencing unique for this table
-    @Column(name = "user_role_id", columnDefinition = "integer default nextval('user_role_seq'::regclass)")
+    //@Column(name = "user_role_id", columnDefinition = "integer default nextval('user_role_seq'::regclass)")
     // Create sequence for id values
-    @SequenceGenerator(name = "user_role_seq", sequenceName = "user_role_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_role_seq")
+    //@SequenceGenerator(name = "user_role_seq", sequenceName = "user_role_seq", allocationSize = 1)
+    //@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_role_seq")
+    @Column(name = "user_role_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
     @Column(name="role_id")
